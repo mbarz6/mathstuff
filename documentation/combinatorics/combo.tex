@@ -1,7 +1,82 @@
 \documentclass[..docs.tex]{subfiles}
 
+\def\code#1{\texttt{#1}}
+
 \begin{document}
 
-test
+The combinatorics package houses functions related to combinatorics.
+
+\subsection{\code{divisorsInBC}}
+
+\subsubsection{Usage}
+
+The \code{divisorsInBC(n, k, p)} function counts how many factors of $p$ (where $p$ is prime) there are in $\binom{n}{k}.$
+
+\subsubsection{Implementation}
+
+First, some notation. Let $x$ be a positive integer. Define $q_x, r_x$ and $q'_x, r'_x$ (where we have $0 \leq r_x, r'_x < p^x$) as
+
+$$n = p^{x}q_x + r_x,$$
+$$k = p^{x}q'_x + r'_x.$$
+
+Note that $q_x, r_x, q'_x, r'_x$ all exist and are unique by the division algorithm.
+
+\vspace{5mm}
+
+Now,  note that $$\binom{n}{k} = \frac{n!}{k!(n-k)!}.$$
+
+To find the number of divisors of $p$ in $\binom{n}{k},$ we will count the divisors of $p$ in the numerator and in the denominator of the above fraction, then subtract.
+
+Note that the desired difference is
+
+$$\left(\lfloor \frac{n}{p} \rfloor + \lfloor \frac{n}{p^2} \rfloor + \cdots \right) - \left(\lfloor \frac{k}{p} \rfloor + \cdots\right) - \left(\lfloor \frac{n-k}{p} + \cdots \rfloor\right).$$
+
+Note that, in the above sums, the $\cdots$ does not indicate (as it normally does) that the sum goes on forever; instead, it only indicates that the sum goes on until one term becomes $0$ (as all subsequent terms will then be $0$). This notation is choosen for succintness.  It's important to distinguish that this is a finite sum, as soon we will do some algebra with it that would be harder to justify with infinite sums.
+
+\vspace{5mm}
+
+Note that
+
+$$\left(\lfloor \frac{n}{p} \rfloor + \lfloor \frac{n}{p^2} \rfloor + \cdots \right) - \left(\lfloor \frac{k}{p} \rfloor + \cdots\right) - \left(\lfloor \frac{n-k}{p} \rfloor + \cdots \rfloor\right) = \left(\lfloor \frac{n}{p} \rfloor - \left(\lfloor \frac{k}{p} \rfloor + \lfloor \frac{n-k}{p} \rfloor \right)\right) + \cdots$$
+
+Thus, it suffices to determine
+
+$$\lfloor \frac{n}{p^x} \rfloor - \left(\lfloor \frac{k}{p^x} \rfloor + \lfloor \frac{n-k}{p^x} \rfloor \right)$$
+
+for each integer $x > 0$ such that $n > p^x.$
+
+\vspace{5mm}
+
+Using the notation defined earlier, note that
+
+$$\lfloor \frac{n}{p^x} \rfloor = q_x,$$
+$$\lfloor \frac{k}{p^x} \rfloor = q'_x,$$
+$$\lfloor \frac{n-k}{p^x} \rfloor = q_x - q'_x + \lfloor \frac{r_x-r'_x}{p^x} \rfloor.$$
+
+Note that
+
+$$-p^x < r_x - r'_x < p^x,$$
+
+and thus
+
+$$\lfloor \frac{r_x-r'_x}{p^x} \rfloor = 0\text{ or } \lfloor \frac{r_x-r'_x}{p^x} \rfloor = -1.$$
+
+Thus, 
+
+$$\lfloor \frac{n}{p^x} \rfloor - \left(\lfloor \frac{k}{p^x} \rfloor + \lfloor \frac{n-k}{p^x} \rfloor \right)$$
+
+will be either $0$ or $1,$ and it will be $1$ if and only if $r_x < r'_x.$
+
+\vspace{5mm}
+
+Thus, the number of factors of $p$ in $\binom{n}{k}$ is precisely the number of $x$ such that $r_x < r'_x.$ The function simply iterates over each $x$ such that $p^x < n,$ counting whenever we have $r_x < r'_x.$
+
+\subsubsection{Possible Updates}
+
+If I added a prime factorization function to this library, I could use that to extend this method to $p$ that aren't prime.
+
+\vspace{5mm}
+
+It may be more efficient to first compute the largest $x$ such that $p^x < n,$ iterate backwards, then stop as soon as we reach some $y$ such that $r_y < r'_y,$ as all subsequent residues will follow in that pattern (this can be proven by looking at the base $p$ representations of numbers involved). 
 
 \end{document}
